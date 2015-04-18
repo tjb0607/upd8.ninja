@@ -14,7 +14,7 @@ check.js is modified by homestuck\_update\_bot when it finds an upd8, and will s
 
 The syntax is as follows:
 
-    shownoupd8([seconds since UNIX epoch]);
+    shownoupd8([approx next upd8 time in seconds since UNIX epoch]);
 
 or if there has been an upd8 in the last 10 minutes:
 
