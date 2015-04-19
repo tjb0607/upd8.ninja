@@ -18,7 +18,7 @@
 		var timeoutTimerID;
 		var timerID;
 		var test = false;
-		var version = "0.1.1.1";
+		var version = "0.1.2";
 		
 		function handleTimeout() {
 			if (document.getElementById("checkscript") != null)
@@ -129,10 +129,12 @@
 		function hideInfo() {
 			document.body.removeEventListener("click", hideInfo);
 			document.getElementById("info").style.display = "none";
+			document.getElementById("infoshade").style.display = "none";
 		}
 		function showInfo() {
 			document.getElementById("info").style.display = "inherit";
-			setTimeout("document.body.addEventListener(\"click\", hideInfo)", 100);
+			document.getElementById("infoshade").style.display = "inherit";
+			setTimeout("document.getElementById(\"infoshade\").addEventListener(\"click\", hideInfo)", 100);
 		}
 		function testNotify() {
 			test = true;
@@ -242,11 +244,11 @@
 			width: 500px;
 			height: 0px;
 			position: absolute;
-			transform: translateY(25px);
-			-webkit-transform: translateY(25px);
-			-ms-transform: translateY(25px);
-			-moz-transform: translateY(25px);
-			-o-transform: translateY(25px);
+			transform: translateY(24px);
+			-webkit-transform: translateY(24px);
+			-ms-transform: translateY(24px);
+			-moz-transform: translateY(24px);
+			-o-transform: translateY(24px);
 			color: #aaa;
 			font-family: Verdana, Arial, Helvetica, sans-serif;
 			font-size: 12px;
@@ -261,6 +263,7 @@
 		#sound {
 			float: right;
 			cursor: pointer;
+			text-decoration: underline;
 		}
 		#titlebutton {
 			float: left;
@@ -290,6 +293,14 @@
 			z-index: 1;
 			background-color: #fafafa;
 			box-shadow: 0px 0px 5px #000;
+		}
+		#infoshade {
+			background-color: rgba(0, 0, 0, 0.2);
+			position: absolute;
+			top: 0px;
+			bottom: 0px;
+			left: 0px;
+			right: 0px;
 		}
 		#info a {
 			color: #333;
@@ -356,7 +367,7 @@
 			</p>
 			<p>
 				When an update is found, the file will change to something like
-				<br/><code>showupd8("009309", "[S] ACT 6 ACT 6 ACT 5");</code><br/>
+				<br/><code>showupd8("009309", "[S] ACT 6 ACT 6 ACT 5", 12);</code><br/>
 				which will tell this page to show a link &amp; make a sound to notify anyone connected
 				to this page that Homestuck has updated.
 			</p>
@@ -368,6 +379,7 @@
 	<div id="test-notify">
 		test notification
 	</div>
+	<div id="infoshade" style="display: none"></div>
 	<script>
 		document.getElementById("sound").addEventListener("click", toggleSound);
 		if (sound)
