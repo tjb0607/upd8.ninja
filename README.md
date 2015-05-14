@@ -27,3 +27,5 @@ additionally, homestuck\_update\_bot stores the current latest page number in a 
 * Ability to keep track of new pages across visits, or when the user's internet is down for over 10 minutes.
 
 * (Version 0.2) Use json files instead of a js file directly executing code from a script, and also completely rework the system from one that changes a file for 10 minutes to one that locally keeps track of what the latest page number is, and then fetches the title of the first unread page when an upd8 is found.
+
+* Better options, including ability to hide number of pages
