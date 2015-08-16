@@ -3,9 +3,12 @@
 <head>
 	<meta charset="utf-8"/>
 	<title>
-		upd8.ninja
+		upd8.ninja - the best Homestuck upd8 notifier
 	</title>
 	<link href="favicon.png" rel="shortcut icon" id="favicon"/>
+    <meta name="viewport" content="width=540"/>
+	<meta name="description" content="A simple, lightweight, web-based notifier for updates to Homestuck, a webcomic by Andrew Hussie."/>
+	<meta name="google-site-verification" content="Rw5UDf2x8uyyFM6x8hDg6daU750VCiwwaL5CEIuWvvU" />
 	<meta property="og:image" content="http://upd8.ninja/thumb.jpg"/>
 	<script>
 		var nextupd8 = 0;
@@ -18,7 +21,16 @@
 		var timeoutTimerID;
 		var timerID;
 		var test = false;
-		var version = "0.1.2";
+		var version = "0.1.4";
+		var remaining_desc_default = "estimated time left";
+		var remaining_title_default = "";
+
+		var remaining_title = remaining_title_default;
+		var remaining_desc = remaining_desc_default;
+		/* IE support */
+		Element.prototype.remove = function() {
+			this.parentElement.removeChild(this);
+		}
 		
 		function handleTimeout() {
 			if (document.getElementById("checkscript") != null)
@@ -67,8 +79,10 @@
 			}
 			document.getElementById("favicon").href = "favicon_upd8.png";
 		}
-		function shownoupd8(n) {
+		function shownoupd8(n, rdesc, rtitle) {
 			nextupd8 = n;
+			remaining_desc = (typeof rdesc === "undefined") ? remaining_desc_default : rdesc;
+			remaining_title = (typeof rtitle === "undefined") ? remaining_title_default : rtitle;
 			clearTimeout(timeoutTimerID);
 			checking = false;
 			document.getElementById("upd8").innerHTML = "<span class=\"noupd8found\">no upd8 found.</span>";
@@ -159,7 +173,25 @@
 			if (now >= nextupd8 || nextupd8 == NaN) {
 				document.getElementById("timeleft").innerHTML = "";
 			} else {
-				var diff = Math.floor(nextupd8 - now);
+				var months = 0;
+				var nextupd8_l = nextupd8;	// local copy
+				if (1) {			// TODO: make months mode optional
+					var thenD = new Date(nextupd8 * 1000);	// date objects
+					var nowD = new Date(now * 1000);
+					
+					months = ( thenD.getMonth() - nowD.getMonth() ) + ( 12 * (thenD.getYear() - nowD.getYear()) );
+					if (nowD.getDay() < thenD.getDay()) {
+						thenD.setFullYear(nowD.getFullYear());
+						thenD.setMonth(nowD.getMonth());
+					} else {
+						thenD.setFullYear(nowD.getFullYear());
+						thenD.setMonth(nowD.getMonth() + 1);
+						months -= 1;
+					}
+
+					nextupd8_l = Math.floor(thenD.getTime() / 1000);
+				}
+				var diff = Math.floor(nextupd8_l - now);
 				var sec = diff % 60;
 				diff = Math.floor(diff / 60);
 				var min = diff % 60;
@@ -167,11 +199,23 @@
 				var hr = diff % 24;
 				diff = Math.floor(diff / 24);
 				var d = diff;
-				remaining_str = "(estimated time left: "
+				remaining_str = "(" + remaining_desc + ": ";
+				if (months > 0)
+					remaining_str += months + "mo, ";
 				if (d > 0)
 					remaining_str += d + "d, ";
 				remaining_str += pad(hr) + ":" + pad(min) + ":" + pad(sec) + ")";
-				document.getElementById("timeleft").innerHTML = remaining_str;
+
+				var timeleft = document.getElementById("timeleft");
+				timeleft.innerHTML = remaining_str;
+				timeleft.title = remaining_title;
+				
+				if (remaining_title == "")
+				{
+					timeleft.style.cursor = "inherit";
+				} else {
+					timeleft.style.cursor = "help";
+				}
 			}
 		}
 		
@@ -308,6 +352,17 @@
 		#info-inner {
 			padding: 20px;
 		}
+		#android a {
+			text-decoration: underline;
+			position: absolute;
+			bottom: 0px;
+			right: 0px;
+			font-family: Verdana, Arial, Helvetica, sans-serif;
+			font-size: 12px;
+			color: #333;
+			cursor: pointer;
+			margin: 4px;
+		}
 		#test-notify {
 			text-decoration: underline;
 			position: absolute;
@@ -379,6 +434,11 @@
 	</div>
 	<div id="test-notify">
 		preview notification
+	</div>
+	<div id="android">
+		<a href="https://play.google.com/store/apps/details?id=com.tjb0607.upd8ninja">
+			android app
+		</a>
 	</div>
 	<div id="infoshade" style="display: none"></div>
 	<script>
