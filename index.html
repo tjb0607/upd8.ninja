@@ -183,10 +183,12 @@
 					thenD.setFullYear(nowD.getFullYear());
 					thenD.setMonth(nowD.getMonth());
 					if ( thenD.getTime() < nowD.getTime() ){
-						thenD.setMonth(thenD.getMonth() + 1);
+						thenD.setTime(nextupd8 * 1000);		// fix rare edge cases
+						thenD.setFullYear(nowD.getFullYear());	//
+						thenD.setMonth(nowD.getMonth() + 1);
 						months -= 1;
 					}
-
+					
 					nextupd8_l = Math.floor(thenD.getTime() / 1000);
 				}
 				var diff = Math.floor(nextupd8_l - now);
