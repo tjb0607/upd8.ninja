@@ -21,7 +21,7 @@
 		var timeoutTimerID;
 		var timerID;
 		var test = false;
-		var version = "0.1.5";
+		var version = "0.1.6";
 		var remaining_desc_default = "estimated time left";
 		var remaining_title_default = "";
 
@@ -198,10 +198,19 @@
 				diff = Math.floor(diff / 60);
 				var hr = diff % 24;
 				diff = Math.floor(diff / 24);
-				var d = diff;
+				var w = 0;
+				var d = 0;
+				if (1) {			// TODO: make weeks mode optional
+					d = diff % 7;
+					w = Math.floor(diff / 7);
+				} else {
+					d = diff;
+				}
 				remaining_str = "(" + remaining_desc + ": ";
 				if (months > 0)
 					remaining_str += months + "mo, ";
+				if (w > 0)
+					remaining_str += w + "w, ";
 				if (d > 0)
 					remaining_str += d + "d, ";
 				remaining_str += pad(hr) + ":" + pad(min) + ":" + pad(sec) + ")";
