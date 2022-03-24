@@ -3,95 +3,46 @@
 <head>
 	<meta charset="utf-8"/>
 	<title>
-		upd8.ninja - the best Homestuck upd8 notifier
+		upd8 ninja - Homestuck^2 upd8 notifier
 	</title>
 	<link href="favicon.png" rel="shortcut icon" id="favicon"/>
     <meta name="viewport" content="width=540"/>
-	<meta name="description" content="A simple, lightweight, web-based notifier for updates to Homestuck, a webcomic by Andrew Hussie."/>
+	<meta name="description" content="A simple, lightweight, web-based notifier for updates to Homestuck^2, the sequel to Andrew Hussie's webcomic."/>
 	<meta name="google-site-verification" content="Rw5UDf2x8uyyFM6x8hDg6daU750VCiwwaL5CEIuWvvU" />
-	<meta property="og:image" content="http://upd8.ninja/thumb.jpg"/>
+	<meta property="og:image" content="//tjb0607.me/upd8/thumb.jpg"/>
 	<script>
-		var nextupd8 = 0;
+		var latestupd8 = { parturl: "", pages: 0, title: "==>" };
 		var lastcheck = 10;
+		var checking = false;
 		var sound = true;
 		if (document.cookie)
 			sound = document.cookie.split('=')[1] == "true";
 		var firstcheck = true;
-		var checking = false;
-		var timeoutTimerID;
-		var timerID;
-		var test = false;
-		var version = "0.1.6";
-		var remaining_desc_default = "estimated time left";
-		var remaining_title_default = "";
+		var mainloopTimerID;
+		var client;
+		var version = "0.2.2";
 
-		var remaining_title = remaining_title_default;
-		var remaining_desc = remaining_desc_default;
 		/* IE support */
 		Element.prototype.remove = function() {
 			this.parentElement.removeChild(this);
 		}
-		
-		function handleTimeout() {
-			if (document.getElementById("checkscript") != null)
-				document.getElementById("checkscript").remove();
-			doCheck();
-		}
-		function blinkTitle() {
-			if (document.title == "upd8 found!")
-				document.title = "!!!";
-			else
-				document.title = "upd8 found!";
-			lastcheck++;
-			timerID = setTimeout("blinkTitle()", 1000);
-		}
-		function showupd8(page, title, numpages) {
-			clearTimeout(timeoutTimerID);
-			clearTimeout(timerID);
-			checking = false;
-			lastcheck = 11;
-			document.getElementById("nextcheck").innerHTML = "";
-			document.getElementById("test-notify").innerHTML = "";
-			document.getElementById("dismiss").innerHTML = "[ dismiss ]";
-			document.getElementById("lastcheck").innerHTML = "upd8 found!&nbsp;";
-			document.getElementById("upd8").innerHTML = "<span class=\"upd8found\">&gt; <a href=\"http://www.mspaintadventures.com/?s=6&p=" + page + "\" id=\"upd8link\">" + title + "</a></span>";
-			document.getElementById("timeleft").style.display = "none";
-			document.getElementById("numpages").style.display = "inherit";
-			if (!firstcheck && sound)
-			{
-				document.getElementById("soundplayer").play();
-			}
-			blinkTitle();
-			if (numpages > 0)
-			{
-				if (numpages == 1)
-				{
-					document.getElementById("numpages").innerHTML = "(1 page)";
-				}
-				else
-				{
-					document.getElementById("numpages").innerHTML = "(" + numpages + " pages)";
+
+		onreadystatechange = function() {
+			if (this.readyState == 4) {
+				var newlatestupd8 = this.response;
+				if (newlatestupd8 && newlatestupd8.parturl) {
+					clearTimeout(mainloopTimerID);
+					lastcheck = 0;
+					if (!latestupd8.parturl || latestupd8.parturl == newlatestupd8.parturl) {
+						showNoUpd8();
+					} else {
+						showUpd8(newlatestupd8);
+					}
+					latestupd8 = newlatestupd8;
 				}
 			}
-			else
-			{
-				document.getElementById("numpages").innerHTML = "";
-			}
-			document.getElementById("favicon").href = "favicon_upd8.png";
-		}
-		function shownoupd8(n, rdesc, rtitle) {
-			nextupd8 = n;
-			remaining_desc = (typeof rdesc === "undefined") ? remaining_desc_default : rdesc;
-			remaining_title = (typeof rtitle === "undefined") ? remaining_title_default : rtitle;
-			clearTimeout(timeoutTimerID);
-			checking = false;
-			document.getElementById("upd8").innerHTML = "<span class=\"noupd8found\">no upd8 found.</span>";
-			lastcheck = 0;
-			clearTimeout(timerID);
-			document.getElementById("timeleft").style.display = "inherit";
-			document.getElementById("numpages").style.display = "none";
-			timerID = setTimeout("mainloop()", 0);
-		}
+		};
+
 		function toggleSound() {
 			if (sound) {
 				sound = false;
@@ -103,43 +54,109 @@
 				document.getElementById("sound").innerHTML = "sound: on";
 			}
 		}
+
+		function testNotify() {
+			clearTimeout(mainloopTimerID);
+			try {
+				client.abort();
+			} catch (e) { }
+			lastcheck = 0;
+			showUpd8(latestupd8);
+		}
+
+		function blinkTitle() {
+			if (document.title == "upd8 found!")
+				document.title = "!!!";
+			else
+				document.title = "upd8 found!";
+			lastcheck++;
+			mainloopTimerID = setTimeout("blinkTitle()", 1000);
+		}
+
+		function showUpd8(upd8) {
+			checking = false;
+			document.body.style.cursor = "";
+			lastcheck = 11;
+			document.getElementById("upd8").innerHTML = "<span class=\"upd8found\">&gt; <a href=\"https://homestuck2.com/" + upd8.parturl.replace(/"/g,"%22") + "\" id=\"upd8link\">" + upd8.title.replace(/</g,"&lt;").replace(/>/g,"&gt;") + "</a></span>";
+			document.getElementById("test-notify").innerHTML = "";
+			document.getElementById("lastcheck").innerHTML = "upd8 found!&nbsp;";
+			document.getElementById("nextcheck").innerHTML = "";
+			document.getElementById("dismiss").innerHTML = "[ dismiss ]";
+			document.getElementById("favicon").href = "favicon_upd8.png";
+			document.getElementById("timeleft").style.display = "none";
+			document.getElementById("numpages").style.display = "inherit";
+			mainloopTimerID = setTimeout("blinkTitle()", 0);
+			if (sound) {
+				document.getElementById("soundplayer").play();
+			}
+			if (upd8.pages > 0)
+			{
+				if (upd8.pages == 1)
+				{
+					document.getElementById("numpages").innerHTML = "(1 page)";
+				}
+				else
+				{
+					document.getElementById("numpages").innerHTML = "(" + upd8.pages + " pages)";
+				}
+			}
+		}
+
+		function showNoUpd8() {
+			checking = false;
+			document.body.style.cursor = "";
+			document.getElementById("upd8").innerHTML = "<span class=\"noupd8found\">no new pages.</span>";
+			mainloopTimerID = setTimeout("mainloop()", 0);
+			document.getElementById("timeleft").style.display = "inherit";
+			document.getElementById("numpages").style.display = "none";
+		}
+
 		function doCheck() {
 			checking = true;
+			document.body.style.cursor = "progress";
+			document.getElementById("nextcheck").innerHTML = "";
 			document.getElementById("test-notify").innerHTML = "preview notification";
 			document.getElementById("upd8").innerHTML = "<span class=\"noupd8found\">checking...</span>";
-			var head = document.getElementsByTagName('head')[0];
-			var fileref = document.createElement("script");
-			fileref.setAttribute("type", "text/javascript");
-			fileref.setAttribute("src", "check.js?" + Date.now());
-			fileref.setAttribute("id", "checkscript");
-			timeoutTimerID = setTimeout("handleTimeout()", 15000);	// try again if not loaded after 15 seconds
-			
-			head.appendChild(fileref);
+			try {
+				client.abort();
+			} catch (e) { }
+			client = new XMLHttpRequest();
+			client.open("GET", "latestupd8.json?" + Math.floor(Date.now() / 10000), true);
+			client.onreadystatechange = onreadystatechange;
+			client.timeout = 9000;
+			client.responseType = "json";
+			client.send();
 		}
-		function mainloop() {
-			if (document.getElementById("checkscript") != null)
-				document.getElementById("checkscript").remove();
-			if (lastcheck == 10 || lastcheck >= 700)
-				doCheck();
 
-			pluralize = "s";
+		function dismiss() {
+			clearTimeout(mainloopTimerID);
+			lastcheck = 10;
+			document.title = "upd8 ninja - Homestuck upd8 notifier";
+			document.getElementById("dismiss").innerHTML = "";
+			document.getElementById("numpages").style.display = "none";
+			document.getElementById("favicon").href = "favicon.png";
+			mainloopTimerID = setTimeout("mainloop()", 0);
+		}
+
+		function mainloop() {
+			clearTimeout(mainloopTimerID);
+			if (lastcheck % 10 == 0 && (lastcheck > 0 || latestupd8.parturl == ""))
+				doCheck();
+			var pluralize = "s";
 			if (lastcheck == 1)
 				pluralize = "";
-			document.getElementById("lastcheck").innerHTML = "last check: " + lastcheck + " second" + pluralize + " ago&nbsp;";
-			if (checking) {
-				document.getElementById("nextcheck").innerHTML = "";
+			if (latestupd8 != "") {
+				document.getElementById("lastcheck").innerHTML = "last check: " + lastcheck + " second" + pluralize + " ago&nbsp;";
+				if (!checking) {
+					document.getElementById("nextcheck").innerHTML = "(next: " + (10 - (lastcheck % 10)) + "s)";
+				}
 			} else {
-				if (lastcheck <= 10)
-					document.getElementById("nextcheck").innerHTML = "(next: " + (10 - lastcheck) +"s)";
-				else
-					document.getElementById("nextcheck").innerHTML = "(next: " + (700 - lastcheck) + "s)";
+				document.getElementById("lastcheck").innerHTML = "last check: never";
 			}
 			lastcheck++;
-			firstcheck = false;
-			timeleft();
-
-			timerID = setTimeout("mainloop()", 1000);
+			mainloopTimerID = setTimeout("mainloop()", 1000);
 		}
+
 		function hideInfo() {
 			document.body.removeEventListener("click", hideInfo);
 			document.getElementById("info").style.display = "none";
@@ -150,85 +167,6 @@
 			document.getElementById("infoshade").style.display = "inherit";
 			setTimeout("document.getElementById(\"infoshade\").addEventListener(\"click\", hideInfo)", 100);
 		}
-		function testNotify() {
-			test = true;
-			showupd8("009309", "[S] ACT 6 ACT 6 ACT 5", 12);
-		}
-		function dismiss() { 
-			clearTimeout(timerID);
-			if (test)
-				lastcheck = 10;
-			document.getElementById("dismiss").innerHTML = "";
-			document.title = "upd8.ninja";
-			document.getElementById("favicon").href = "favicon.png";
-			timerID = setTimeout("mainloop()", 0);
-		}
-		
-		function pad(n) {
-			return n<10 ? '0'+n : n;
-		}
-		function timeleft() {
-			var now = Math.floor(Date.now() / 1000);
-			var remaining_str;
-			if (now >= nextupd8 || nextupd8 == NaN) {
-				document.getElementById("timeleft").innerHTML = "";
-			} else {
-				var months = 0;
-				var nextupd8_l = nextupd8;	// local copy
-				if (1) {			// TODO: make months mode optional
-					var thenD = new Date(nextupd8 * 1000);	// date objects
-					var nowD = new Date(now * 1000);
-					
-					months = ( thenD.getMonth() - nowD.getMonth() ) + ( 12 * (thenD.getYear() - nowD.getYear()) );
-					thenD.setFullYear(nowD.getFullYear());
-					thenD.setMonth(nowD.getMonth());
-					if ( thenD.getTime() < nowD.getTime() ){
-						thenD.setTime(nextupd8 * 1000);		// fix rare edge cases
-						thenD.setFullYear(nowD.getFullYear());	//
-						thenD.setMonth(nowD.getMonth() + 1);
-						months -= 1;
-					}
-					
-					nextupd8_l = Math.floor(thenD.getTime() / 1000);
-				}
-				var diff = Math.floor(nextupd8_l - now);
-				var sec = diff % 60;
-				diff = Math.floor(diff / 60);
-				var min = diff % 60;
-				diff = Math.floor(diff / 60);
-				var hr = diff % 24;
-				diff = Math.floor(diff / 24);
-				var w = 0;
-				var d = 0;
-				if (1) {			// TODO: make weeks mode optional
-					d = diff % 7;
-					w = Math.floor(diff / 7);
-				} else {
-					d = diff;
-				}
-				remaining_str = "(" + remaining_desc + ": ";
-				if (months > 0)
-					remaining_str += months + "mo, ";
-				if (w > 0)
-					remaining_str += w + "w, ";
-				if (d > 0)
-					remaining_str += d + "d, ";
-				remaining_str += pad(hr) + ":" + pad(min) + ":" + pad(sec) + ")";
-
-				var timeleft = document.getElementById("timeleft");
-				timeleft.innerHTML = remaining_str;
-				timeleft.title = remaining_title;
-				
-				if (remaining_title == "")
-				{
-					timeleft.style.cursor = "inherit";
-				} else {
-					timeleft.style.cursor = "help";
-				}
-			}
-		}
-		
-		window.onload = mainloop;
 	</script>
 	<style>
 		#btw {
@@ -256,17 +194,13 @@
 			text-align: center;
 			background-color: #5a5a5a;
 			margin: 0px;
+			align-items: center;
+			display: flex;
 		}
 		#main {
 			background-color: #eee;
 			position: absolute;
-			top: 50%;
-			left: 50%;
-			transform: translate(-50%, -50%);
-			-webkit-transform: translate(-50%, -50%);
-			-ms-transform: translate(-50%, -50%);
-			-moz-transform: translate(-50%, -50%);
-			-o-transform: translate(-50%, -50%);
+			left: calc(50% - 250px);
 			text-align: center;
 			width: 500px;
 			padding-top: 24px;
@@ -276,16 +210,17 @@
 			color: #000;
 			font-size: 24px;
 			font-family: Verdana, Arial, Helvetica, sans-serif;
+			margin: 0px 20px;
 		}
 		#header {
 			width: 500px;
 			height: 0px;
 			position: absolute;
-			transform: translateY(-40px);
-			-webkit-transform: translateY(-40px);
-			-ms-transform: translateY(-40px);
-			-moz-transform: translateY(-40px);
-			-o-transform: translateY(-40px);
+			transform: translateY(-41px);
+			-webkit-transform: translateY(-41px);
+			-ms-transform: translateY(-41px);
+			-moz-transform: translateY(-41px);
+			-o-transform: translateY(-41px);
 			color: #aaa;
 			font-family: Verdana, Arial, Helvetica, sans-serif;
 			font-size: 12px;
@@ -361,16 +296,19 @@
 		#info-inner {
 			padding: 20px;
 		}
-		#android a {
-			text-decoration: underline;
+		#snaps {
 			position: absolute;
 			bottom: 0px;
 			right: 0px;
 			font-family: Verdana, Arial, Helvetica, sans-serif;
 			font-size: 12px;
+			margin: 4px;
+			white-space: nowrap;
+		}
+		#snaps a {
 			color: #333;
 			cursor: pointer;
-			margin: 4px;
+			text-decoration: underline;
 		}
 		#test-notify {
 			text-decoration: underline;
@@ -392,11 +330,12 @@
 	</audio>
 	<div id="main">
 		<div id="header">
-			<span id="titlebutton">[?]</span><span id="title">&nbsp;upd8.ninja - <a href="http://www.mspaintadventures.com/">Homestuck</a> upd8 checker/notifier</span>
-			<span id="credits">by <a href="http://tjb0607.me">tjb0607</a></span>
+			<span id="titlebutton">[?]</span><span id="title">&nbsp;upd8 ninja - <a href="https://homestuck2.com/">Homestuck^2</a> upd8 checker/notifier</span>
+			<span id="credits">by <a href="//blog.tjb0607.me">tjb0607</a></span>
 		</div>
 		<p id="upd8">
-			<span class="noupd8found">checking...</span>
+			<span class="noupd8found">no upd8 found.</span>
+			<!-- <span class="upd8found">&gt; <a href="http://www.mspaintadventures.com/?s=6&p=010027" id="upd8link">[S] ACT 7</a></span> -->
 		</p>
 		<p id="btw">
 			<span id="timeleft"></span>
@@ -404,61 +343,44 @@
 		</p>
 		<div id="footer">
 			<p id="lastcheck">last check: never</p>
-			<p id="dismiss"></p>
+			<p id="dismiss" class="jslink"></p>
 			<p id="nextcheck"></p>
-			<p id="sound">sound: off</p>
+			<p id="sound" class="jslink">sound: off</p>
 		</div>
 	</div>
-	<div id="info" style="display: none"> 
+	<div id="info" style="display: none">
 		<div id="info-inner">
-			<h1>upd8.ninja - <a href="http://www.mspaintadventures.com/">Homestuck</a> upd8 checker</h1>
-			<p>by <a href="http://tjb0607.me">tjb0607</a></p>
+			<h1>upd8 ninja - <a href="https://homestuck2.com/">Homestuck^2</a> upd8 checker</h1>
+			<p>by <a href="//tjb0607.me">tjb0607</a></p>
 			<p>
-				There are two major problems with most Homestuck update checkers. For one,
-				they rely on MSPA's RSS feed, which is often a few minutes behind. The other issue
-				is that they can slow down MSPA's website. This website is designed in such a way
-				that neither of these issues even exist.
+				upd8 ninja is a super simple, free Homestuck upd8 notifier to keep open in your browser. Rather than hammering Homestuck's site by having each user refresh the site once every minute or so, this has one central server checking for everyone. This not only reduces the load on Homestuck's servers compared to RSS-based notifiers and spamming F5, but also allows for a faster refresh rate.
 			</p>
 			<p>
-				Rather than having everyone access MSPA directly, this website does that on the server
-				side, so that it only has to check MSPA once every 5 seconds, no matter how many people
-				are using this upd8 checker. Additionally, this uses a much more reliable source to check
-				whether there's an update or not: the <a href="http://www.mspaintadventures.com/6/001901.txt">text files</a> used to generate the MSPA pages themselves.
-				When there's no page, trying to access the text file will return a 404 status code.
-				Otherwise, it will return 200. This website looks at what page will be next, and refreshes
-				that every 5 seconds to see if the page exists yet. If it does exist, it'll send it over
-				to <a href="http://www.reddit.com/user/homestuck_update_bot">reddit</a>, an IRC channel, and <a href="http://tjb0607.me/upd8/check.js">this little file</a>
-				to notify people of the update.
-			</p>
-			<p>
-				When an update is found, the file will change to something like
-				<br/><code>showupd8("009309", "[S] ACT 6 ACT 6 ACT 5", 12);</code><br/>
-				which will tell this page to show a link &amp; make a sound to notify anyone connected
-				to this page that Homestuck has updated.
-			</p>
-			<p>
-				<a href="http://blog.tjb0607.me/post/116284067402/upd8-ninja-checker-no-download-required">tumblr post</a> / <a href="http://www.reddit.com/r/homestuck/comments/32fjo0/introducing_upd8ninja_the_best_homestuck_upd8/">reddit post</a>
+				This is done by a backend script checking <a href="https://homestuck2.com/log">the adventure log</a> and storing the latest upd8 info at <a href="latestupd8.json">latestupd8.json</a>, formatted like this:
+				<br/><code>{"parturl": "story/1", "title": "Somewhere, in the distant reaches of space...", "pages": 32}</code><br/>
+				If the file changes while this page is open, it will notify you, linking to the specified URL on homestuck2.com.
 			</p>
 		</div>
 	</div>
-	<div id="test-notify">
+	<div id="test-notify" class="jslink">
 		preview notification
 	</div>
-	<div id="android">
-		<a href="https://play.google.com/store/apps/details?id=com.tjb0607.upd8ninja">
-			android app
+	<div id="snaps">
+		<a href="snaps/">
+			MSPA Snapchat Archive
 		</a>
 	</div>
 	<div id="infoshade" style="display: none"></div>
 	<script>
-		document.getElementById("sound").addEventListener("click", toggleSound);
-		if (sound)
-			document.getElementById("sound").innerHTML = "sound: on";
-		else
-			document.getElementById("sound").innerHTML = "sound: off";
-		document.getElementById("titlebutton").addEventListener("click", showInfo);
-		document.getElementById("test-notify").addEventListener("click", testNotify);
-		document.getElementById("dismiss").addEventListener("click", dismiss);
+		window.onload = new function() {
+			document.getElementById("sound").addEventListener("click", toggleSound);
+			if (sound == true)
+				document.getElementById("sound").innerHTML = "sound: on";
+			document.getElementById("titlebutton").addEventListener("click", showInfo);
+			document.getElementById("dismiss").addEventListener("click", dismiss);
+		  document.getElementById("test-notify").addEventListener("click", testNotify);
+			mainloop();
+		}
 	</script>
 </body>
 </html>
