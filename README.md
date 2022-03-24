@@ -1,4 +1,4 @@
-# upd8.ninja
+# upd8 ninja
 
 Homestuck^2 update checker using a central server to reduce overall load on Homestuck's servers
 
