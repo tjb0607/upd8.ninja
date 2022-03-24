@@ -4,7 +4,7 @@ Interfaces with homestuck\_update\_bot to make the best upd8 checker possible.
 
 ## website
 
-http://upd8.ninja/
+https://tjb0607.me/upd8
 
 ## API
 
