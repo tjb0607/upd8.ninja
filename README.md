@@ -12,4 +12,4 @@ The upd8ninja.py file generates a json file located at https://tjb0607.me/upd8/l
 
     {"parturl": "story/1", "title": "Somewhere, in the distant reaches of space...", "pages": 32}
 
-The parturl is appended to https://homestuck2.com by the frontend to create a complete link.
+The parturl is appended to https://homestuck2.com/ by the frontend to create a complete link.
