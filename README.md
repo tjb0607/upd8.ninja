@@ -4,7 +4,7 @@ Homestuck^2 update checker using a central server to reduce overall load on Home
 
 ## website
 
-https://tjb0607.me/upd8
+https://upd8.tjb0607.me/
 
 ## API
 
