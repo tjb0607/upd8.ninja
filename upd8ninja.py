@@ -7,7 +7,7 @@ import sys
 from datetime import datetime, date
 from platform import python_version
 
-upd8ninja_user_agent = 'upd8 ninja - Homestuck update notifier running on python ' + python_version() + ' via urllib for tjb0607.me/upd8'
+upd8ninja_user_agent = 'upd8 ninja - Homestuck update notifier running on python ' + python_version() + ' via urllib for upd8.tjb0607.me'
 
 #Print with timestamp
 def tsPrint(message):
