@@ -36,7 +36,7 @@ def getPageList():
             req = urllib.request.Request(link, headers={'User-Agent': upd8ninja_user_agent})
             response = urllib.request.urlopen(req)
         except Exception as e:
-            tsPrintLog("[ERROR] Error while fetching " + link + ":" + str(e))
+            tsPrintLog("[ERROR] Error while fetching " + link + ": " + str(e))
             time.sleep(5)
     html = response.read().decode('utf-8')
 
