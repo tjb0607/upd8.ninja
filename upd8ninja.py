@@ -3,6 +3,7 @@ import urllib.request
 import re
 import time
 import json
+import sys
 from datetime import datetime, date
 from platform import python_version
 
@@ -13,12 +14,14 @@ def tsPrint(message):
     ts = time.time()
     st = datetime.fromtimestamp(ts).strftime('%H:%M:%S ')
     print(st + message)
+    sys.stdout.flush()
 
 #Print & log with timestamp
 def tsPrintLog(message):
     ts = time.time()
     st = datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S ')
     print(st + message)
+    sys.stdout.flush()
     f = open("upd8ninja.log", "a")
     f.write(st + message + "\n")
     f.close()
@@ -51,7 +54,7 @@ def getPageList():
 
 if __name__ == '__main__':
     #adventure = "epilogues"
-    upd8ninjadir = "/var/www/upd8/"
+    upd8ninjadir = "/var/www/html/upd8/"
     sleeptime = 20
 
     #upd8ninjadir = "C:/Users/tjb06/upd8/new/"
